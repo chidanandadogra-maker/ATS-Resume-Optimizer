@@ -103,14 +103,14 @@ app.post(
 );
 
 
-app.post(
-  "/api/optimize",
-  protect,
-  upload.single("resume"),
-  async (req, res) => {
-    // Keep your existing optimization logic here
-  }
-);
+// app.post(
+//   "/api/optimize",
+//   protect,
+//   upload.single("resume"),
+//   async (req, res) => {
+//     // Keep your existing optimization logic here
+//   }
+// );
 
 function validateResumePayload(req, res, next) {
   const resume = req.body?.optimizedResume;
