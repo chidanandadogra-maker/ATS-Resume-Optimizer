@@ -1,0 +1,23 @@
+[33mcommit 65e88a21d7f013cf7b57ebcd3a57729da721f1a4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;32mbackup-before-env-cleanup[m[33m)[m
+Author: Chidananda Dogra <chidanandadogra@gmail.com>
+Date:   Tue Oct 27 14:09:51 2026 +0530
+
+    Remove env file and update gitignore
+
+[33mcommit 34f1bb3e64a06b43a0d7b5457785ae3644e11f1b[m[33m ([m[1;32mbackup-before-rebase-fix[m[33m)[m
+Author: Chidananda Dogra <chidanandadogra@gmail.com>
+Date:   Sun Oct 25 23:05:16 2026 +0530
+
+    Initial commit
+
+[33mcommit f455bec4b40e850319385c5f178b1ea019d76dd5[m
+Author: Chidananda Dogra <chidanandadogra@gmail.com>
+Date:   Mon Oct 26 20:13:07 2026 +0530
+
+    fix: remove env file and update gitignore
+
+[33mcommit 33885d00968d764c9f24b7080bc17a753ba8efe9[m
+Author: Chidananda Dogra <chidanandadogra@gmail.com>
+Date:   Sun Oct 25 23:05:16 2026 +0530
+
+    Initial commit
