@@ -52,32 +52,31 @@ app.get("/", (req, res) => {
 
 
 
+
 app.post(
   "/api/optimize",
-  upload.single("resume"),
   protect,
+  upload.single("resume"),
   async (req, res) => {
     try {
-      console.log("OPTIMIZE REQUEST:", {
-        contentType: req.headers["content-type"],
-        fileReceived: Boolean(req.file),
-        fileName: req.file?.originalname,
-        fileType: req.file?.mimetype,
-        bodyFields: Object.keys(req.body || {}),
-        userId: req.user?._id,
-      });
+      console.log("========== OPTIMIZE DEBUG ==========");
+      console.log("Content-Type:", req.headers["content-type"]);
+      console.log("File received:", !!req.file);
+      console.log("File name:", req.file?.originalname);
+      console.log("File MIME:", req.file?.mimetype);
+      console.log("Body fields:", Object.keys(req.body || {}));
+      console.log("====================================");
 
       if (!req.file) {
+        console.error("UPLOAD ERROR: req.file is undefined");
+
         return res.status(400).json({
           success: false,
           message: "Resume file is required",
         });
       }
 
-      if (
-        typeof req.body.jobDescription !== "string" ||
-        !req.body.jobDescription.trim()
-      ) {
+      if (!req.body.jobDescription?.trim()) {
         return res.status(400).json({
           success: false,
           message: "Job description is required",
@@ -86,7 +85,7 @@ app.post(
 
       const resumeText = await parseResume(req.file);
 
-      if (!resumeText || !resumeText.trim()) {
+      if (!resumeText?.trim()) {
         return res.status(400).json({
           success: false,
           message: "No readable text found in resume",
@@ -98,7 +97,7 @@ app.post(
         req.body.jobDescription
       );
 
-      return res.status(200).json({
+      return res.json({
         success: true,
         message: "Resume optimized successfully",
         ...aiResult,
@@ -109,11 +108,12 @@ app.post(
 
       return res.status(500).json({
         success: false,
-        message: error.message || "Resume optimization failed",
+        message: "Resume optimization failed",
       });
     }
   }
 );
+
 
 
 // app.post(
