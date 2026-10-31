@@ -89,82 +89,96 @@ function Optimize() {
 
   const handleOptimize = async (e) => {
     e.preventDefault();
-
+  
     if (loading) return;
-
+  
     setError("");
     setSuccessMessage("");
-
+  
     if (!resume) {
       setError("Please upload your resume first.");
       return;
     }
-
+  
     if (!jobDescription.trim()) {
       setError("Please enter the job description.");
       return;
     }
-
+  
     try {
       setLoading(true);
-
+  
       const formData = new FormData();
-      formData.append("resume", resume);
-      formData.append("jobDescription", jobDescription);
-
-      console.log("Sending data to backend...");
-
-      const response = await api.post(
-        "/api/optimize",
-        formData
-      );
-
-      console.log("Backend response:", response.data);
-
-      if (
-        !response.data?.success ||
-        !response.data?.optimizedResume
-      ) {
+  
+      formData.append("resume", resume, resume.name);
+      formData.append("jobDescription", jobDescription.trim());
+  
+      const token = localStorage.getItem("token");
+  
+      const apiBaseUrl = (
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"
+      ).replace(/\/+$/, "");
+  
+      console.log("Sending upload:", {
+        fileName: resume.name,
+        fileSize: resume.size,
+        fileType: resume.type,
+        formFields: [...formData.keys()],
+        apiUrl: `${apiBaseUrl}/api/optimize`,
+      });
+  
+      const result = await fetch(`${apiBaseUrl}/api/optimize`, {
+        method: "POST",
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : {},
+        body: formData,
+      });
+  
+      const data = await result.json();
+  
+      if (!result.ok) {
+        throw new Error(data.message || "Resume optimization failed.");
+      }
+  
+      if (!data.success || !data.optimizedResume) {
         throw new Error(
-          response.data?.message ||
-            "The server returned an incomplete result."
+          data.message || "The server returned an incomplete result."
         );
       }
-
+  
+      console.log("Optimization result:", data);
+  
       setSuccessMessage("Resume optimized successfully!");
-        
+  
       const historyKey = `atsResumeHistory_${user?._id || user?.email || "guest"}`;
-
+  
       const savedHistory = JSON.parse(
         localStorage.getItem(historyKey) || "[]"
       );
-      
+  
       const historyItem = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         createdAt: new Date().toISOString(),
-        result: response.data,
+        result: data,
       };
-      
+  
       localStorage.setItem(
         historyKey,
         JSON.stringify([historyItem, ...savedHistory].slice(0, 20))
       );
-      
-      // Send the AI result to the Results page.
+  
       navigate("/results", {
-        state: response.data,
+        state: data,
       });
+  
     } catch (err) {
-      console.error(
-        "Optimization failed:",
-        err.response?.data || err.message
-      );
-
+      console.error("Optimization failed:", err);
+  
       setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Resume optimization failed. Please try again."
+        err.message || "Resume optimization failed. Please try again."
       );
+  
     } finally {
       setLoading(false);
     }

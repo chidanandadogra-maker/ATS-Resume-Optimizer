@@ -54,10 +54,19 @@ app.get("/", (req, res) => {
 
 app.post(
   "/api/optimize",
-  protect,
   upload.single("resume"),
+  protect,
   async (req, res) => {
     try {
+      console.log("OPTIMIZE REQUEST:", {
+        contentType: req.headers["content-type"],
+        fileReceived: Boolean(req.file),
+        fileName: req.file?.originalname,
+        fileType: req.file?.mimetype,
+        bodyFields: Object.keys(req.body || {}),
+        userId: req.user?._id,
+      });
+
       if (!req.file) {
         return res.status(400).json({
           success: false,
@@ -65,7 +74,10 @@ app.post(
         });
       }
 
-      if (!req.body.jobDescription?.trim()) {
+      if (
+        typeof req.body.jobDescription !== "string" ||
+        !req.body.jobDescription.trim()
+      ) {
         return res.status(400).json({
           success: false,
           message: "Job description is required",
@@ -74,7 +86,7 @@ app.post(
 
       const resumeText = await parseResume(req.file);
 
-      if (!resumeText.trim()) {
+      if (!resumeText || !resumeText.trim()) {
         return res.status(400).json({
           success: false,
           message: "No readable text found in resume",
@@ -86,17 +98,18 @@ app.post(
         req.body.jobDescription
       );
 
-      return res.json({
+      return res.status(200).json({
         success: true,
         message: "Resume optimized successfully",
         ...aiResult,
       });
+
     } catch (error) {
       console.error("Resume optimization error:", error);
 
       return res.status(500).json({
         success: false,
-        message: "Resume optimization failed",
+        message: error.message || "Resume optimization failed",
       });
     }
   }
